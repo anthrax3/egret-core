@@ -234,10 +234,11 @@ module egret {
 
         public setupFont(textField:TextField, style:egret.ITextStyle = null):void {
             style = style || <egret.ITextStyle>{};
-            var italic:boolean = style["italic"] == null ? textField._italic : style["italic"];
-            var bold:boolean = style["bold"] == null ? textField._bold : style["bold"];
-            var size:number = style["size"] == null ? textField._size : style["size"];
-            var fontFamily:string = style["fontFamily"] == null ? textField._fontFamily : style["fontFamily"];
+            var properties:egret.TextFieldProperties = textField._properties;
+            var italic:boolean = style["italic"] == null ? properties._italic : style["italic"];
+            var bold:boolean = style["bold"] == null ? properties._bold : style["bold"];
+            var size:number = style["size"] == null ? properties._size : style["size"];
+            var fontFamily:string = style["fontFamily"] == null ? properties._fontFamily : style["fontFamily"];
             var ctx = this.drawCanvasContext;
             var font:string = italic ? "italic " : "normal ";
             font += bold ? "bold " : "normal ";
@@ -256,13 +257,14 @@ module egret {
         public drawText(textField:egret.TextField, text:string, x:number, y:number, maxWidth:number, style:egret.ITextStyle = null) {
             this.setupFont(textField, style);
             style = style || <egret.ITextStyle>{};
+            var properties:egret.TextFieldProperties = textField._properties;
 
             var textColor:string;
             if (style.textColor != null) {
                 textColor = toColorString(style.textColor);
             }
             else {
-                textColor = textField._textColorString;
+                textColor = properties._textColorString;
             }
 
             var strokeColor:string;
@@ -270,7 +272,7 @@ module egret {
                 strokeColor = toColorString(style.strokeColor);
             }
             else {
-                strokeColor = textField._strokeColorString;
+                strokeColor = properties._strokeColorString;
             }
 
             var outline;
@@ -278,7 +280,7 @@ module egret {
                 outline = style.stroke;
             }
             else {
-                outline = textField._stroke;
+                outline = properties._stroke;
             }
 
             var renderContext = this.drawCanvasContext;
@@ -341,6 +343,16 @@ module egret {
                     }
                 }
             }
+        }
+
+        public drawCursor(x1:number, y1:number, x2:number, y2:number):void {
+            this.drawCanvasContext.strokeStyle = "#40a5ff";
+            this.drawCanvasContext.lineWidth = 2;
+            this.drawCanvasContext.beginPath();
+            this.drawCanvasContext.moveTo(Math.round(x1 + this._transformTx), Math.round(y1 + this._transformTy));
+            this.drawCanvasContext.lineTo(Math.round(x2 + this._transformTx), Math.round(y2 + this._transformTy));
+            this.drawCanvasContext.closePath();
+            this.drawCanvasContext.stroke();
         }
     }
 }
