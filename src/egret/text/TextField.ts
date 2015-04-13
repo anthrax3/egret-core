@@ -522,8 +522,11 @@ module egret {
         private _bgGraphics:Graphics = null;
 
         /**
-         *
-         * @param value
+         * 指定文本字段是否具有边框。
+         * 如果为 true，则文本字段具有边框。如果为 false，则文本字段没有边框。
+         * 使用 borderColor 属性来设置边框颜色。
+         * 默认值为 false。
+         * @member {boolean} egret.TextField#border
          */
         public set border(value:boolean) {
             this._properties._border = value;
@@ -533,6 +536,11 @@ module egret {
             return this._properties._border;
         }
 
+        /**
+         * 文本字段边框的颜色。默认值为 0x000000（黑色）。
+         * 即使当前没有边框，也可检索或设置此属性，但只有当文本字段已将 border 属性设置为 true 时，才可以看到颜色。
+         * @member {number} egret.TextField#borderColor
+         */
         public set borderColor(value:number) {
             this._properties._borderColor = value;
             this.fillBackground();
@@ -541,6 +549,13 @@ module egret {
             return this._properties._borderColor;
         }
 
+        /**
+         * 指定文本字段是否具有背景填充。
+         * 如果为 true，则文本字段具有背景填充。如果为 false，则文本字段没有背景填充。
+         * 使用 backgroundColor 属性来设置文本字段的背景颜色。
+         * 默认值为 false。
+         * @member {boolean} egret.TextField#background
+         */
         public set background(value:boolean) {
             this._properties._background = value;
             this.fillBackground();
@@ -549,7 +564,11 @@ module egret {
             return this._properties._background;
         }
 
-
+        /**
+         * 文本字段背景的颜色。默认值为 0xFFFFFF（白色）。
+         * 即使当前没有背景，也可检索或设置此属性，但只有当文本字段已将 background 属性设置为 true 时，才可以看到颜色。
+         * @member {number} egret.TextField#backgroundColor
+         */
         public set backgroundColor(value:number) {
             this._properties._backgroundColor = value;
             this.fillBackground();
@@ -676,7 +695,7 @@ module egret {
                 return Rectangle.identity.initialize(0, 0, 0, 0);
             }
 
-            return Rectangle.identity.initialize(0, 0, properties._textMaxWidth, properties._textMaxHeight + (properties._numLines - 1) * properties._lineSpacing);
+            return Rectangle.identity.initialize(0, 0, properties._textMaxWidth, TextFieldUtils._getTextHeight(self));
         }
 
 
@@ -744,7 +763,7 @@ module egret {
         }
 
         public get textHeight():number {
-            return this._properties._textMaxHeight;
+            return TextFieldUtils._getTextHeight(this);
         }
 
         public appendText(text:string):void {
@@ -912,8 +931,6 @@ module egret {
         private drawText(renderContext:RendererContext):void {
             var self = this;
             var properties:egret.TextFieldProperties = self._properties;
-            var lines:Array<egret.ILineElement> = self._getLinesArr();
-
 
             if (properties._type == egret.TextFieldType.INPUT) {
                 if (self._isTyping) {
@@ -921,6 +938,8 @@ module egret {
                 }
             }
 
+            //先算出需要的数值
+            var lines:Array<egret.ILineElement> = self._getLinesArr();
             if (properties._textMaxWidth == 0) {
                 return;
             }
@@ -929,9 +948,9 @@ module egret {
             var textHeight:number = TextFieldUtils._getTextHeight(self);
 
             var drawY:number = 0;
-            var startLine:number = TextFieldUtils._getStartLine(this);
-            var valign:number = TextFieldUtils._getValign(this);
+            var startLine:number = TextFieldUtils._getStartLine(self);
             if (self._hasHeightSet && self._explicitHeight > textHeight) {
+                var valign:number = TextFieldUtils._getValign(self);
                 drawY += valign * (self._explicitHeight - textHeight);
             }
             drawY = Math.round(drawY);
